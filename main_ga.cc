@@ -10,6 +10,15 @@ using namespace std;
 // Number of individuals in each generation
 #define POPULATION_SIZE 100
 
+// Size of the intersection between two sets
+int intersection_size(const set<int> &A, const set<int> &B) {
+  int size = 0;
+  for (int a : A) {
+    if (B.find(a) != B.end()) size++;
+  }
+  return size;
+}
+
 // Function to generate random numbers in given range
 int random_num(int start, int end) {
   int range = (end - start) + 1;
@@ -54,7 +63,7 @@ Individual::Individual(vector<int> chromosome) {
 // Perform mating and produce new offspring
 Individual Individual::mate(Individual par2) {
   // chromosome for offspring
-  string child_chromosome = "";
+  vector<int> child_chromosome;
 
   int len = chromosome.size();
   for (int i = 0; i < len; i++) {
@@ -63,17 +72,17 @@ Individual Individual::mate(Individual par2) {
 
     // if prob is less than 0.45, insert gene
     // from parent 1
-    if (p < 0.45) child_chromosome += chromosome[i];
+    if (p < 0.45) child_chromosome.push_back(chromosome[i]);
 
     // if prob is between 0.45 and 0.90, insert
     // gene from parent 2
     else if (p < 0.90)
-      child_chromosome += par2.chromosome[i];
+      child_chromosome.push_back(par2.chromosome[i]);
 
     // otherwise insert random gene(mutate),
     // for maintaining diversity
     else
-      child_chromosome += mutated_genes();
+      child_chromosome.push_back(mutated_genes());
   }
 
   // create new Individual(offspring) using
@@ -88,17 +97,11 @@ int Individual::cal_fitness() {
   int len = mapping.size();
   int fitness = 0;
   for (Person &person : people) {
-    int n_likes =
-        set_intersection(person.likes.begin(), person.likes.end(),
-                         chromosome_set.being(), chromosome_set.end());
-
-    int n_dislikes =
-        set_intersection(person.likes.begin(), person.likes.end(),
-                         chromosome_set.being(), chromosome_set.end());
+    if (intersection_size(chromosome_set, person.likes) ==
+            person.likes.size() &&
+        intersection_size(chromosome_set, person.dislikes) == 0)
+      fitness++;
   }
-  // for (int i = 0; i < len; i++) {
-  //   if (chromosome[i] != TARGET[i]) fitness++;
-  // }
   return fitness;
 };
 
@@ -127,13 +130,8 @@ int main() {
     // sort the population in increasing order of fitness score
     sort(population.begin(), population.end());
 
-    // if the individual having lowest fitness score ie.
-    // 0 then we know that we have reached to the target
-    // and break the loop
-    if (population[0].fitness <= 0) {
-      found = true;
-      break;
-    }
+    // Stopping criteria
+    if (generation == 100) break;
 
     // Otherwise generate new offsprings for new generation
     vector<Individual> new_generation;
@@ -157,12 +155,15 @@ int main() {
     }
     population = new_generation;
     cout << "Generation: " << generation << "\t";
-    cout << "String: " << population[0].chromosome << "\t";
+    // cout << "String: " << population[0].chromosome << "\t";
     cout << "Fitness: " << population[0].fitness << "\n";
+    cout << "Abraçades";
 
     generation++;
   }
   cout << "Generation: " << generation << "\t";
-  cout << "String: " << population[0].chromosome << "\t";
+  // cout << "String: " << population[0].chromosome << "\t";
   cout << "Fitness: " << population[0].fitness << "\n";
+
+  write_output(population[0].chromosome);
 }
