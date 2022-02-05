@@ -1,11 +1,11 @@
 main: main.cc cpp_utils/*
-	g++ main.cc -o main -O2
+	g++ -std=c++17 main.cc -o main -O2
 
 main_debug: main.cc cpp_utils/*
-	g++ main.cc -o main -O0 -g
+	g++ -std=c++17 main.cc -o main -O0 -g
 
 test: test.cc cpp_utils/*
-	g++ test.cc -o test
+	g++ std=c++17 test.cc -o test
 
 zip: main.cc *.py optimizer/* cpp_utils/* 
 	zip code.zip -r main.cc *.py optimizer cpp_utils

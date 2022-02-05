@@ -2,17 +2,19 @@
 #define __WRITE_OUTPUT__
 
 #include "includes.hh"
+#include "read_data.hh"
 
-// TODO: Modify the parameters to this function as desired and write to "out_temp.txt"
 void write_output(vector<int>& chosen) {
-    ofstream file("out_temp.txt");
-    bool first = true;
-    for (int x : chosen) {
-        if (first) first = false;
-        else file << " ";
-        file << x;
+  int count = 0;
+  for (int x : chosen) count += x;
+  ofstream file("out_temp.txt");
+  file << count;
+  for (int i = 0; i < chosen.size(); i++) {
+    if (chosen[i]) {
+      file << " " << mapping_inv[i];
     }
-    file << endl;
+  }
+  file << endl;
 }
 
 #endif
