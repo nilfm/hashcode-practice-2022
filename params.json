@@ -2,8 +2,8 @@
     "floats": [
         {
             "name": "threshold",
-            "lower": 0.5,
-            "upper": 1
+            "lower": 0.1,
+            "upper": 20
         }
     ],
     "ints": []

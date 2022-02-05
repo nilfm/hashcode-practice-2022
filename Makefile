@@ -4,6 +4,9 @@ main: main.cc cpp_utils/*
 main_debug: main.cc cpp_utils/*
 	g++ -std=c++17 main.cc -o main -O0 -g
 
+main_ga: main_ga.cc cpp_utils/*
+	g++ -std=c++17 main_ga.cc -o main_ga -O2
+	
 test: test.cc cpp_utils/*
 	g++ std=c++17 test.cc -o test
 

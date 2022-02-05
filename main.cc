@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
   srand(time(0));
 
   // chosen[i] == 1 if the i'th ingredient is chosen, else 0
-  vector<int> chosen;
+  vector<int> chosen(N);
 
   // assign score to ingredient
   vector<int> scores(N);
