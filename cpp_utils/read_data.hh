@@ -23,7 +23,7 @@ void read_data(const string& path) {
     for (int k = 0; k < 2; k++) {
       int n;
       infile >> n;
-      set<int> v;
+      set<int>& v = (k == 0 ? person.likes : person.dislikes);
       for (int i = 0; i < n; i++) {
         string s;
         infile >> s;
@@ -32,11 +32,6 @@ void read_data(const string& path) {
           mapping_inv.push_back(s);
         }
         v.insert(mapping[s]);
-      }
-      if (k == 0) {
-        person.likes = v;
-      } else {
-        person.dislikes = v;
       }
     }
   }
