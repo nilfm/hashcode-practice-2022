@@ -1,5 +1,3 @@
-#include <bits/stdc++.h>
-
 #include "cpp_utils/includes.hh"
 #include "cpp_utils/read_data.hh"
 #include "cpp_utils/read_params.hh"
