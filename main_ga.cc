@@ -5,9 +5,6 @@
 
 using namespace std;
 
-// Number of individuals in each generation
-#define POPULATION_SIZE 100
-
 // Size of the intersection between two sets
 int intersection_size(const set<int> &A, const set<int> &B) {
   int size = 0;
@@ -48,8 +45,8 @@ class Individual {
 
 Individual::Individual(vector<int> chromosome) {
   set<int> chromosome_set;
-  for (int i : chromosome) {
-    if (i == 1) {
+  for (int i = 0; i < chromosome.size(); i++) {
+    if (chromosome[i] == 1) {
       chromosome_set.insert(i);
     }
   }
@@ -94,23 +91,30 @@ Individual Individual::mate(Individual par2) {
 int Individual::cal_fitness() {
   int len = mapping.size();
   int fitness = 0;
+  int n_likes, n_dislikes;
+
   for (Person &person : people) {
-    if (intersection_size(chromosome_set, person.likes) ==
-            person.likes.size() &&
-        intersection_size(chromosome_set, person.dislikes) == 0)
-      fitness++;
+    n_likes = intersection_size(chromosome_set, person.likes);
+    n_dislikes = intersection_size(chromosome_set, person.dislikes);
+
+    if (n_likes == person.likes.size() && n_dislikes == 0) fitness++;
   }
   return fitness;
 };
 
-// Overloading < operator
+// Overloading > operator
 bool operator<(const Individual &ind1, const Individual &ind2) {
-  return ind1.fitness < ind2.fitness;
+  return ind1.fitness > ind2.fitness;
 }
 
 // Driver code
-int main() {
+int main(int argc, char **argv) {
+  map<string, double> p = read_params(argc, argv);
+  read_data(argv[1]);
   srand((unsigned)(time(0)));
+
+  int n_generations = p["n_generations"];
+  int population_size = p["population_size"];
 
   // current generation
   int generation = 0;
@@ -119,7 +123,7 @@ int main() {
   bool found = false;
 
   // create initial population
-  for (int i = 0; i < POPULATION_SIZE; i++) {
+  for (int i = 0; i < population_size; i++) {
     vector<int> gnome = create_gnome();
     population.push_back(Individual(gnome));
   }
@@ -129,24 +133,24 @@ int main() {
     sort(population.begin(), population.end());
 
     // Stopping criteria
-    if (generation == 100) break;
+    if (generation == n_generations) break;
 
     // Otherwise generate new offsprings for new generation
     vector<Individual> new_generation;
 
     // Perform Elitism, that mean 10% of fittest population
     // goes to the next generation
-    int s = (10 * POPULATION_SIZE) / 100;
+    int s = (10 * population_size) / 100;
     for (int i = 0; i < s; i++) new_generation.push_back(population[i]);
 
     // From 50% of fittest population, Individuals
     // will mate to produce offspring
-    s = (90 * POPULATION_SIZE) / 100;
+    s = population_size - s;
     for (int i = 0; i < s; i++) {
       int len = population.size();
-      int r = random_num(0, 50);
+      int r = random_num(0, (50 * population_size) / 100);
       Individual parent1 = population[r];
-      r = random_num(0, 50);
+      r = random_num(0, (50 * population_size) / 100);
       Individual parent2 = population[r];
       Individual offspring = parent1.mate(parent2);
       new_generation.push_back(offspring);
@@ -155,7 +159,6 @@ int main() {
     cout << "Generation: " << generation << "\t";
     // cout << "String: " << population[0].chromosome << "\t";
     cout << "Fitness: " << population[0].fitness << "\n";
-    cout << "Abraçades";
 
     generation++;
   }

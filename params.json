@@ -1,10 +1,6 @@
 {
-    "floats": [
-        {
-            "name": "threshold",
-            "lower": 0.5,
-            "upper": 1
-        }
-    ],
+    "floats": [],
     "ints": []
 }
+
+python3 main_random.py -d b -p params.json -x main_ga -g

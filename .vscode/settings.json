@@ -24,6 +24,7 @@
         "valarray": "cpp",
         "vector": "cpp",
         "ranges": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "iostream": "cpp"
     }
 }
