@@ -14,6 +14,79 @@ int intersection_size(const set<int> &A, const set<int> &B) {
   return size;
 }
 
+// Heuristic solution
+vector<int> heuristic_solution(map<string, double> &p) {
+  const int INF = 1e9;
+  int P = people.size();
+  vector<int> chosen(N);
+
+  vector<int> ingr_scores(N);
+  for (Person person : people) {
+    for (int like : person.likes) {
+      ingr_scores[like]++;
+    }
+    for (int dislike : person.dislikes) {
+      ingr_scores[dislike]--;
+    }
+  }
+
+  vector<int> scores(P);
+  for (int i = 0; i < P; i++) {
+    Person person = people[i];
+    int a = person.likes.size();
+    int b = person.dislikes.size();
+    for (int ingr : person.likes) {
+      scores[i] += ingr_scores[ingr];
+    }
+    for (int ingr : person.dislikes) {
+      scores[i] -= ingr_scores[ingr];
+    }
+    if (a == 0 and b == 0) {
+      scores[i] = INF;
+    } else {
+      scores[i] /= (a + b);
+    }
+  }
+
+  vector<int> forbidden(N, 0);
+
+  vector<int> people_idx(P);
+  for (int i = 0; i < P; i++) {
+    people_idx[i] = i;
+  }
+
+  sort(people_idx.begin(), people_idx.end(),
+       [&](int a, int b) -> bool { return scores[a] > scores[b]; });
+
+  for (int i = 0; i < P; i++) {
+    if (scores[people_idx[i]] == INF or rand() % 100 < p["threshold"] * 100) {
+      Person person = people[people_idx[i]];
+      bool can_do = true;
+      for (int ingr : person.dislikes) {
+        if (chosen[ingr]) {
+          can_do = false;
+          break;
+        }
+      }
+      for (int ingr : person.likes) {
+        if (forbidden[ingr]) {
+          can_do = false;
+          break;
+        }
+      }
+      if (can_do) {
+        for (int ingr : person.likes) {
+          chosen[ingr] = 1;
+        }
+        for (int ingr : person.dislikes) {
+          forbidden[ingr] = 1;
+        }
+      }
+    }
+  }
+  return chosen;
+}
+
 // Function to generate random numbers in given range
 int random_num(int start, int end) {
   int range = (end - start) + 1;
@@ -25,10 +98,16 @@ int random_num(int start, int end) {
 char mutated_genes() { return rand() % 2; }
 
 // create chromosome or string of genes
-vector<int> create_gnome() {
+vector<int> create_gnome(vector<int> heu_solution) {
   int len = mapping.size();
   vector<int> gnome;
-  for (int i = 0; i < len; i++) gnome.push_back(mutated_genes());
+  for (int i = 0; i < len; i++) {
+    gnome.push_back(mutated_genes());
+    // if (rand() % 2 == 0)
+    //   gnome.push_back(mutated_genes());
+    // else
+    //   gnome.push_back(heu_solution[i]);
+  }
   return gnome;
 }
 
@@ -113,6 +192,8 @@ int main(int argc, char **argv) {
   read_data(argv[1]);
   srand((unsigned)(time(0)));
 
+  vector<int> heu_solution = heuristic_solution(p);
+
   int n_generations = p["n_generations"];
   int population_size = p["population_size"];
 
@@ -124,7 +205,7 @@ int main(int argc, char **argv) {
 
   // create initial population
   for (int i = 0; i < population_size; i++) {
-    vector<int> gnome = create_gnome();
+    vector<int> gnome = create_gnome(heu_solution);
     population.push_back(Individual(gnome));
   }
 
@@ -140,13 +221,13 @@ int main(int argc, char **argv) {
 
     // Perform Elitism, that mean 10% of fittest population
     // goes to the next generation
-    int s = (10 * population_size) / 100;
-    for (int i = 0; i < s; i++) new_generation.push_back(population[i]);
+    int s1 = (10 * population_size) / 100;
+    for (int i = 0; i < s1; i++) new_generation.push_back(population[i]);
 
     // From 50% of fittest population, Individuals
     // will mate to produce offspring
-    s = population_size - s;
-    for (int i = 0; i < s; i++) {
+    int s2 = population_size - s1;
+    for (int i = 0; i < s2; i++) {
       int len = population.size();
       int r = random_num(0, (50 * population_size) / 100);
       Individual parent1 = population[r];
@@ -155,6 +236,7 @@ int main(int argc, char **argv) {
       Individual offspring = parent1.mate(parent2);
       new_generation.push_back(offspring);
     }
+
     population = new_generation;
     cout << "Generation: " << generation << "\t";
     // cout << "String: " << population[0].chromosome << "\t";

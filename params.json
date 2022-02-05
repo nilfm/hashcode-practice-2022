@@ -2,5 +2,3 @@
     "floats": [],
     "ints": []
 }
-
-python3 main_random.py -d b -p params.json -x main_ga -g
