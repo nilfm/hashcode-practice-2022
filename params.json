@@ -3,7 +3,7 @@
         {
             "name": "threshold",
             "lower": 0.1,
-            "upper": 20
+            "upper": 1
         }
     ],
     "ints": []
